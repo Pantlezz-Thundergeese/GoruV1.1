@@ -6,6 +6,10 @@ const { s3 } = require('../libs/awsConfig.js');
 
 const awsController = {};
 
+awsController.debugger = (req, res, next) => {
+  console.log('starting aws upload');
+  return next();
+};
 awsController.postProfilePic = (req, res, next) => {
   //aws bucket config info
   fs.readFile(req.file.path, async (err, imgData) => {

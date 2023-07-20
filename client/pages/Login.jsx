@@ -8,8 +8,6 @@ import '../styles/Login.scss';
 import { UserIdContext } from '../contexts/Contexts.jsx';
 
 const Login = (props) => {
-  const CLIENT_ID = '12511d91e841945b2edd';
-  const CLIENT_SECRETS = 'a0c26008058e961a4ceea77439f79c8ec02f916c';
   //create a state of invalid usernmae/passowrd initialixed to false
   const [validLogin, setvalidLogin] = useState(false);
   const navigate = useNavigate();
@@ -18,37 +16,6 @@ const Login = (props) => {
   const [info, setInfo] = useState({ username: '', password: '' });
   const [userData, setUserData] = useState({});
   const [loading, setLoading] = useState(true);
-
-  // Load Apis
-  useEffect(() => {
-    const queryString = window.location.search;
-    console.log('queryString is', queryString);
-    const urlParams = new URLSearchParams(queryString);
-    console.log('urlParams is', urlParams);
-    const code = urlParams.get('code');
-    console.log('code is', code);
-
-    if (code && !localStorage.getItem('accessToken')) {
-      async function getAccessToken() {
-        await fetch(`http://localhost:3000/getAccessToken?code=${code}`, {
-          method: 'GET',
-        })
-          .then((res) => {
-            console.log('res is', res);
-            return res.json();
-          })
-          .then((data) => {
-            console.log('frontend data: ', data);
-            if (data.access_token) {
-              console.log('data.accessToken is', data.access_token);
-              localStorage.setItem('accessToken', data.access_token);
-              setvalidLogin(!validLogin);
-            }
-          });
-      }
-      getAccessToken();
-    }
-  }, []);
 
   //Check log in
   useEffect(() => {
@@ -86,13 +53,45 @@ const Login = (props) => {
       });
   }
 
+  // Redirect Github Login
   function loginByGithub() {
-    window.location.assign(
-      `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}`
-    );
+    // ideally we fetch this client_id from the backend for safety reasons
+    const CLIENT_ID = 'c238f56e0e5708918de2';
+
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}`;
   }
 
-  // Handle regular Login
+  // Handle Github Login / Get Access_token
+  useEffect(() => {
+    const queryString = window.location.search;
+    console.log('fronend queryString is', queryString);
+    const urlParams = new URLSearchParams(queryString);
+    console.log('urlParams is', urlParams);
+    const code = urlParams.get('code');
+    console.log('code is', code);
+
+    // code is from when user logs in from github probably
+    if (code && !localStorage.getItem('accessToken')) {
+      // async function for getting access token as a cookie
+      async function getAccessToken() {
+        const res = await fetch(
+          `http://localhost:3000/getAccessToken?code=${code}`,
+          {
+            method: 'GET',
+            credentials: 'include',
+          }
+        );
+      }
+
+      getAccessToken();
+      console.log('Frontend: Finished getAccessToken as cookie');
+
+      // valid login
+      setvalidLogin(!validLogin);
+    }
+  }, []);
+
+  // Handle Regular Login
   const handleClick = async (e) => {
     const res = await fetch('http://localhost:3000/api/user/login', {
       method: 'POST',
@@ -116,7 +115,14 @@ const Login = (props) => {
   };
 
   return (
-    <div style={{ backgroundColor: 'black' }}>
+    <div
+      style={{
+        backgroundColor: 'black',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <Navbar />
       <div className="loginbackground">
         {!localStorage.getItem('accessToken') && !validLogin ? (
@@ -125,8 +131,8 @@ const Login = (props) => {
               <h3>Welcome back!</h3>
               <h3>Log in with your name and password</h3>
             </div>
-            <div class="container">
-              <div class="login-form">
+            <div className="container">
+              <div className="login-form">
                 <h2>Login</h2>
                 <label for="username">Username</label>
                 <input
@@ -157,10 +163,9 @@ const Login = (props) => {
                 </button>
               </div>
             </div>
-            <hr width="70%" />
 
-            <div class="container" onClick={loginByGithub}>
-              <a class="github-button">
+            <div class="container">
+              <a class="github-button" onClick={loginByGithub}>
                 <img
                   src="https://github.githubassets.com/images/modules/logos_page/Octocat.png"
                   alt="GitHub logo"
@@ -187,13 +192,12 @@ const Login = (props) => {
                 <h4>No data available</h4>
               </>
             )}
-
-            <footer>
-              <p>&copy; 2023 Goru. All rights reserved.</p>
-            </footer>
           </>
         )}
       </div>
+      <footer>
+        <p>&copy; 2023 Goru. All rights reserved.</p>
+      </footer>
     </div>
   );
 };

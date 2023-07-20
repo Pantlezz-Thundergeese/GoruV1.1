@@ -138,7 +138,7 @@ $width: 1200px;
 
 .searches {
   display: flex;
-  gap: 25px;
+  gap: 20px;
 
   .input-bar {
     flex-grow: 1;
@@ -210,7 +210,7 @@ $width: 1200px;
     background-color: #1668e4;
     height: 45px;
     border: none;
-    width: 80px;
+    width: 100px;
     border-radius: 50px;
     font-size: 16px;
     color: white;
@@ -332,7 +332,7 @@ $width: 1200px;
   color: white;
   border-radius: 20px;
   background-color: rgb(28, 37, 73);
-  width: $width;
+  width: 1000px;
   z-index: 10000;
   gap: 25px;
   display: flex;
