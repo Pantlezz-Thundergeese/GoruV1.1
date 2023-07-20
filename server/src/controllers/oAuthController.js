@@ -1,5 +1,5 @@
 const db = require('../config/profileSchema.js');
-
+const axios = require('axios');
 const CLIENT_ID = 'c238f56e0e5708918de2';
 const CLIENT_SECRETS = '716573f16cb7a24c2f599c541cead19d3f3df7dc';
 
@@ -24,7 +24,7 @@ oAuthController.getQueryString = async (req, res, next) => {
     console.log(access_token);
     console.log('Backend: received ', data);
     res.cookie('github_token', access_token, { maxAge: 90000, httpOnly: true });
-    console.log('created a cookie with access_token');
+    console.log('Backend: created a cookie with access_token');
     return next();
   } catch (err) {
     res.status(500);
