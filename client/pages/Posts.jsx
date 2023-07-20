@@ -22,6 +22,8 @@ const Comments = () => {
 
   const [image, setImage] = useState();
 
+  const[reloadPostBody,setReloadPostBody] = useState(false)
+
   // LOCAL STATES
   const [postThreads, setPostThreads] = useState([]);
   const [searchLanguageText, setSearchLanguageText] = useState('');
@@ -92,6 +94,7 @@ const Comments = () => {
       // setPostThreads(data);
       // console.log('data returned', data);
       setShowOverlay(false);
+      setReloadPostBody(true)
       console.log('Closing Overlay');
     } catch (err) {
       console.log(err);
@@ -136,7 +139,8 @@ const Comments = () => {
       } catch (err) {}
     };
     fetchData();
-  }, []);
+    setReloadPostBody(false)
+  }, [reloadPostBody]);
 
   //update pages
 
