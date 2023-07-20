@@ -78,21 +78,6 @@ const ProfileHeader = ({ user, setUser, globalId }) => {
 
   return (
     <div className="header">
-      <div className="headerLeft">
-        <button className="homeButton" value="Home" onClick={handleSubmit}>
-          Home
-        </button>
-        <BasicInfo
-          user={user}
-          edit={edit}
-          setNewUsername={setNewUsername}
-          setNewUserPass={setNewUserPass}
-          setNewUserContact={setNewUserContact}
-        />
-        <button className="editButton" value="Edit" onClick={handleEdit}>
-          {editText}
-        </button>
-      </div>
       <div className="headerRight">
         <h1>Hello {user.name}</h1>
         <div
@@ -108,8 +93,23 @@ const ProfileHeader = ({ user, setUser, globalId }) => {
             type="file"
             onChange={handleFileChange}
           />
-          <button className="editImg" onClick={handleImg}></button>
+          <button className="editImg" onClick={handleImg}>Add Profile Picture</button>
         </div>
+      </div>
+      <div className="headerLeft">
+        {/* <button className="homeButton" value="Home" onClick={handleSubmit}>
+          Home
+        </button> */}
+        <BasicInfo
+          user={user}
+          edit={edit}
+          setNewUsername={setNewUsername}
+          setNewUserPass={setNewUserPass}
+          setNewUserContact={setNewUserContact}
+        />
+        <button className="editButton" value="Edit" onClick={handleEdit}>
+          {editText}
+        </button>
       </div>
     </div>
   );

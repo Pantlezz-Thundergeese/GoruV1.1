@@ -1,6 +1,6 @@
 import React, { useState, useEffect,useContext } from 'react';
 import { UserIdContext } from '../contexts/Contexts.jsx';
-export function HomeHeader() {
+export function HomeHeader({reloadBody,setReloadBody}) {
   //state for the form inputs
   const [apiName, setApiName] = useState('');
   const [apiURL, setApiURL] = useState('');
@@ -64,6 +64,7 @@ export function HomeHeader() {
         }),
       });
       const data = await response.json();
+      setReloadBody(true);
       console.log('success');
       console.log('data returned', data);
     } catch (err) {
@@ -140,7 +141,7 @@ export function HomeHeader() {
                 <label>
                   <input
                     type="checkbox"
-                    onChange={() => {
+                    onClick={() => {
                       setTypeApi(true);
                     }}
                   />
@@ -149,7 +150,7 @@ export function HomeHeader() {
                 <label>
                   <input
                     type="checkbox"
-                    onChange={() => {
+                    onClick={() => {
                       setTypeFramework(true);
                     }}
                   />
@@ -158,7 +159,7 @@ export function HomeHeader() {
                 <label>
                   <input
                     type="checkbox"
-                    onChange={() => {
+                    onClick={() => {
                       setTypeLibrary(true);
                     }}
                   />
