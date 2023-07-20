@@ -3,20 +3,23 @@ import Navbar from '../components/Navbar.jsx';
 import '../styles/Homes.scss';
 import { HomeHeader } from '../components/HomeHeader.jsx';
 import { HomeBody } from '../components/HomeBody.jsx';
+import { SearchBar } from '../components/Searchbar.jsx';
 
 const Home = () => {
+  const [reloadBody, setReloadBody] = useState(false)
+
   return (
     <div className="homepage">
       <Navbar />
-      <HomeHeader />
-      <div className="input-container">
-        <input
-          type="text"
-          className="input-bar-home"
-          placeholder="Search APIs..."
-        />
-      </div>
-      <HomeBody />
+      <HomeHeader
+      setReloadBody = {setReloadBody}
+      reloadBody = {reloadBody}
+       />
+       <SearchBar/>
+      <HomeBody
+      setReloadBody = {setReloadBody}
+      reloadBody = {reloadBody}
+      />
     </div>
   );
 };
