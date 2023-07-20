@@ -3,6 +3,7 @@ import '../styles/Profile.scss';
 import { UserIdContext } from '../contexts/Contexts.jsx'; //userContext = username
 import ProfileHeader from '../components/ProfileHeader.jsx';
 import ProfileBody from '../components/ProfileBody.jsx';
+import Navbar from '../components/Navbar.jsx';
 
 const Profile = () => {
   const [user, setUser] = useState({});
@@ -24,10 +25,13 @@ const Profile = () => {
   }, []);
 
   return (
+    <div>
+    <Navbar/>
     <div className="profilePage">
       {/* TODO: button to navigate back to home page */}
       <ProfileHeader user={user} globalId={globalId} setUser={setUser} />
       <ProfileBody posts={posts} />
+    </div>
     </div>
   );
 };
