@@ -16,6 +16,7 @@ const techRouter = require(path.join(__dirname, '/src/routes/techRouter'));
 const postRouter = require(path.join(__dirname, '/src/routes/postRouter'));
 const userRouter = require(path.join(__dirname, '/src/routes/userRouter'));
 const awsRouter = require(path.join(__dirname, '/src/routes/awsRouter'));
+const oauthRouter = require(path.join(__dirname, '/src/routes/oauthRouter'));
 // Parse incoming JSON, static reqeusts, forms, and cookies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -29,20 +30,24 @@ app.use('/api/tech', techRouter);
 app.use('/api/post', postRouter);
 app.use('/api/user', userRouter);
 app.use('/api/aws', awsRouter);
+app.use('/api/oauth', oauthRouter);
 // controller
 const oAuthController = require(path.join(
   __dirname,
   '/src/controllers/oAuthController'
 ));
 
-app.get(
-  '/getAccessToken',
-  oAuthController.getQueryString,
-  //one more for session
-  async (req, res) => {
-    res.sendStatus(200);
-  }
-);
+// app.get(
+//   '/api/getAccessToken',
+//   //gettoken
+//   oAuthController.getQueryString,
+//   //getgithub data
+//   oAuthController.getGithubData,
+//   async (req, res) => {
+//     console.log(res.locals.data);
+//     res.status(200).json(res.locals.data);
+//   }
+// );
 
 app.get('/getUserData', async (req, res) => {
   await fetch('https://api.github.com/user', {

@@ -2,6 +2,10 @@ const db = require('../config/profileSchema.js');
 
 const userController = {};
 
+userController.makeOauthUser = async (req, res, next) => {
+  //
+};
+
 userController.makeUser = async (req, res, next) => {
   const { username, password, contact } = req.body;
   //Check and see if username is taken
@@ -41,7 +45,7 @@ userController.makeUser = async (req, res, next) => {
       [username]
     );
     const { user_id } = rows[0];
-      
+
     res.locals.userId = user_id;
     console.log(res.locals.userId);
     return next();

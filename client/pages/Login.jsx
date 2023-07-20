@@ -53,7 +53,7 @@ const Login = (props) => {
       });
   }
 
-  // Redirect Github Login
+  // Redirect Github Login DONE
   function loginByGithub() {
     // ideally we fetch this client_id from the backend for safety reasons
     const CLIENT_ID = 'c238f56e0e5708918de2';
@@ -73,18 +73,21 @@ const Login = (props) => {
     // code is from when user logs in from github probably
     if (code && !localStorage.getItem('accessToken')) {
       // async function for getting access token as a cookie
-      async function getAccessToken() {
+      async function getProfile() {
         const res = await fetch(
-          `http://localhost:3000/getAccessToken?code=${code}`,
+          `http://localhost:3000/api/oauth?code=${code}`,
           {
             method: 'GET',
             credentials: 'include',
           }
         );
+        const data = await res.json();
+        console.log('data from github', data);
+        // userData = await res.json();
+        // console.log('userData is ', userData);
       }
 
-      getAccessToken();
-      console.log('Frontend: Finished getAccessToken as cookie');
+      getProfile();
 
       // valid login
       setvalidLogin(!validLogin);

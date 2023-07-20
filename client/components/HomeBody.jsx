@@ -24,14 +24,15 @@ export function HomeBody() {
   //Render boxes
   const renderBox = () => {
     return apiData.map((item, index) => {
-
       return (
         <div
           type="button"
           className="box"
           key={index}
-          onClick={comments}
           id={item.tech_id}
+          onClick={(e) => {
+            navigate(`/comments/${e.currentTarget.id}`);
+          }}
         >
           <img src={item.image_url} alt="Tech" className="api-image" />
           <a href={item.link} className="tech-itemname">
@@ -42,14 +43,6 @@ export function HomeBody() {
       );
     });
   };
-
-  //Click to renavigate to Post
-  function comments(e) {
-    const senderTechId = e.target.id;
-    const senderName = e.target.name;
-    navigate(`/comments/${senderTechId}`); // received as route.params
-    //
-  }
 
   return (
     <div className="grid-body">
