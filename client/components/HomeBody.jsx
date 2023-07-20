@@ -24,7 +24,6 @@ export function HomeBody() {
   //Render boxes
   const renderBox = () => {
     return apiData.map((item, index) => {
-      console.log(item);
 
       return (
         <div

@@ -17,6 +17,9 @@ const Home = () => {
         />
       </div>
       <HomeBody />
+      <footer>
+              <p>&copy; 2023 Goru. All rights reserved.</p>
+            </footer>
     </div>
   );
 };
