@@ -1,14 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BasicInfo from '../components/BasicInfo.jsx';
+window.Buffer = window.Buffer || require('buffer').Buffer;
 
 const ProfileHeader = ({ user, setUser, globalId }) => {
+  const [userImg, setUserImg] = useState(user.profile_picture);
   const [edit, setEdit] = useState(false);
   const [editText, setEditText] = useState('Edit');
   const [newUsername, setNewUsername] = useState(user.name);
   const [newUserPass, setNewUserPass] = useState(user.name);
   const [newUserContact, setNewUserContact] = useState(user.name);
   const navigate = useNavigate();
+
+  const inputRef = useRef(null);
+  const handleImg = (e) => {
+    e.preventDefault();
+    inputRef.current.click();
+  };
+
+  const handleFileChange = (e) => {
+    e.preventDefault();
+    const fileObj = e.target.files[0];
+    if (!fileObj) return;
+    console.log('fileObj is ', fileObj);
+    e.target.value = null;
+    sendImg(fileObj);
+    // upload(fileObj);
+  };
+
+  const sendImg = async (img) => {
+    const formData = new FormData();
+    formData.append('image', img, img.name);
+    const res = await fetch(`/api/aws`, {
+      method: 'POST',
+      body: formData,
+    });
+    const data = await res.json();
+    console.log('response', data);
+    setUserImg(data);
+  };
 
   const handleSubmit = () => {
     navigate('/home');
@@ -67,9 +97,18 @@ const ProfileHeader = ({ user, setUser, globalId }) => {
         <h1>Hello {user.name}</h1>
         <div
           className="imgContainer"
-          style={{ backgroundImage: `url("${user.imgUrl}")` }}
+          style={{
+            backgroundImage: `url(${userImg})`,
+          }}
+          // style={{ backgroundImage: `url("${user.imgUrl}")` }}
         >
-          <button className="editImg"></button>
+          <input
+            style={{ display: 'none' }}
+            ref={inputRef}
+            type="file"
+            onChange={handleFileChange}
+          />
+          <button className="editImg" onClick={handleImg}></button>
         </div>
       </div>
     </div>
