@@ -14,7 +14,6 @@ import { UserIdContext } from './contexts/Contexts.jsx';
 const App = () => {
   //create a High Level state for whether the user is logged in or not
   //make the loggedInStatus either false OR the User's ID/cookie from database as idenfier
-  const [loggedInStatus, setLoggedInStatus] = useState(false);
   const [globalId, setGlobalId] = useState('');
 
   return (
@@ -24,38 +23,26 @@ const App = () => {
           <Route
             index
             element={<Home />}
-            loggedIn={setLoggedInStatus}
-            userId={loggedInStatus}
           />
           <Route
             path="/home"
             element={<Home />}
-            loggedIn={setLoggedInStatus}
-            userId={loggedInStatus}
           />
           <Route
             path = "/createuser"
             element ={<CreateUser/>}
-            loggedIn={setLoggedInStatus}
-            userId={loggedInStatus}
           />
           <Route
             path="/comments/:id"
             element={<Posts />}
-            loggedIn={setLoggedInStatus}
-            userId={loggedInStatus}
           />
           <Route
             path="/login"
             element={<Login />}
-            loggedIn={setLoggedInStatus}
-            userId={loggedInStatus}
           />
           <Route
             path="/profile"
             element={<Profile />}
-            loggedIn={setLoggedInStatus}
-            userId={loggedInStatus}
           />
         </Routes>
         

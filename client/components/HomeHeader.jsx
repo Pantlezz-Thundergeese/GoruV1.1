@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-
+import React, { useState, useEffect,useContext } from 'react';
+import { UserIdContext } from '../contexts/Contexts.jsx';
 export function HomeHeader() {
   //state for the form inputs
   const [apiName, setApiName] = useState('');
@@ -9,6 +9,23 @@ export function HomeHeader() {
   const [typeApi, setTypeApi] = useState(false);
   const [typeFramework, setTypeFramework] = useState(false);
   const [typeLibrary, setTypeLibrary] = useState(false);
+
+  const [username, setUsername] = useState('');
+  const { globalId,setGlobalId } = useContext(UserIdContext);
+
+//check for name
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const response = await fetch(`/api/user/id/${globalId}`);
+        const data = await response.json();
+        setUsername(data.user.name);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getData();
+  }, [username]);
 
   //to Show Overlay
   const [showOverlay, setShowOverlay] = useState(false);
@@ -58,20 +75,23 @@ export function HomeHeader() {
     <div className="main-header">
       <div className="home-title-hero">
         <img src="./logo3.png" className="logo"></img>
-
+        {typeof globalId === 'number' ? (
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
           }}
         >
-          <h2>Welcome, Tony</h2>
+    
+          <h2>Welcome back, {username}</h2>
           <h3>Cohort: CTRI 17</h3>
 
           <button id="allbuttons" className="button" onClick={openOverlay}>
             + ADD TECH
           </button>
         </div>
+        ):(
+        <div><h1>Welcome to Goru</h1></div>)}
         {showOverlay ? (
           <div className="newAddTech">
             <div className="formGroup">
