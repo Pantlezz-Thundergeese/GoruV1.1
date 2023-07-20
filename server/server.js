@@ -15,7 +15,7 @@ const PORT = 3000;
 const techRouter = require(path.join(__dirname, '/src/routes/techRouter'));
 const postRouter = require(path.join(__dirname, '/src/routes/postRouter'));
 const userRouter = require(path.join(__dirname, '/src/routes/userRouter'));
-
+const awsRouter = require(path.join(__dirname, '/src/routes/awsRouter'));
 // Parse incoming JSON, static reqeusts, forms, and cookies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -28,7 +28,7 @@ app.use(bodyParser.json());
 app.use('/api/tech', techRouter);
 app.use('/api/post', postRouter);
 app.use('/api/user', userRouter);
-
+app.use('/api/aws', awsRouter);
 // controller
 const oAuthController = require(path.join(
   __dirname,
