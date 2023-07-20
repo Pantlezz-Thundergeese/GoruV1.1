@@ -3,6 +3,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+// const fileUpload = require('express-fileupload');
 const CLIENT_ID = '12511d91e841945b2edd';
 const CLIENT_SECRETS = 'a0c26008058e961a4ceea77439f79c8ec02f916c';
 
@@ -13,6 +14,7 @@ const PORT = 3000;
 const techRouter = require(path.join(__dirname, '/src/routes/techRouter'));
 const postRouter = require(path.join(__dirname, '/src/routes/postRouter'));
 const userRouter = require(path.join(__dirname, '/src/routes/userRouter'));
+const awsRouter = require(path.join(__dirname, '/src/routes/awsRouter'));
 
 // Parse incoming JSON, static reqeusts, forms, and cookies
 app.use(express.json());
@@ -21,11 +23,13 @@ app.use(cookieParser());
 app.use(express.static('./dist'));
 app.use(cors({ credentials: true, origin: 'http://localhost:8080' }));
 app.use(bodyParser.json());
+// app.use(fileUpload());
 
 // API router for server handling of db info
 app.use('/api/tech', techRouter);
 app.use('/api/post', postRouter);
 app.use('/api/user', userRouter);
+app.use('/api/aws', awsRouter);
 
 app.get('/getAccessToken', async (req, res) => {
   const queryString = `?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRETS}&code=${req.query.code}`;

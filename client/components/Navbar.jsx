@@ -52,7 +52,7 @@ export default function Navbar() {
           <li className="NavButton" onClick={Login}>
             Login
           </li>
-          <li className="NavButton">Create Account</li>
+          <li className="NavButton" onClick = {CreateUser}>Create Account</li>
         </ul>
       )}
     </div>

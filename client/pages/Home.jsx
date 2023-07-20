@@ -20,6 +20,9 @@ const Home = () => {
       setReloadBody = {setReloadBody}
       reloadBody = {reloadBody}
       />
+      <footer>
+              <p>&copy; 2023 Goru. All rights reserved.</p>
+            </footer>
     </div>
   );
 };
