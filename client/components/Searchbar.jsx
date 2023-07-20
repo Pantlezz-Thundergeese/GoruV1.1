@@ -1,5 +1,13 @@
-export default function searchBar () {
+import React from 'react';
+
+export function SearchBar () {
   return  (
-    <input type='text' placeholder='Submit your search here...'></input>
+        <div className="input-container">
+        <input
+          type="text"
+          className="input-bar-home"
+          placeholder="Search APIs..."
+        />
+      </div> 
   )
 }
