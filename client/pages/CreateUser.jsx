@@ -39,9 +39,9 @@ export function CreateUser(){
 
 
   return(
-    <div>
+    <div style={{ backgroundColor: 'black' }}>
       <Navbar/>
-        <div className = "loginbackground">
+        <div className = "loginbackground" >
           <div className="formHeader">
               <h3>Welcome!</h3>
               <h3>Create your account below</h3>
@@ -86,6 +86,9 @@ export function CreateUser(){
               </div>
             </div>
         </div>
+        <footer>
+              <p>&copy; 2023 Goru. All rights reserved.</p>
+            </footer>
       </div>
   )
 }
