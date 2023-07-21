@@ -1,6 +1,12 @@
 const path = require('path');
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const CLIENT_ID = 'c238f56e0e5708918de2';
+const CLIENT_SECRETS = '716573f16cb7a24c2f599c541cead19d3f3df7dc';
+
+const axios = require('axios');
 
 const app = express();
 const PORT = 3000;
@@ -9,17 +15,55 @@ const PORT = 3000;
 const techRouter = require(path.join(__dirname, '/src/routes/techRouter'));
 const postRouter = require(path.join(__dirname, '/src/routes/postRouter'));
 const userRouter = require(path.join(__dirname, '/src/routes/userRouter'));
-
+const awsRouter = require(path.join(__dirname, '/src/routes/awsRouter'));
+const oauthRouter = require(path.join(__dirname, '/src/routes/oauthRouter'));
 // Parse incoming JSON, static reqeusts, forms, and cookies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static('./dist'));
+app.use(cors({ credentials: true, origin: 'http://localhost:8080' }));
+app.use(bodyParser.json());
 
 // API router for server handling of db info
 app.use('/api/tech', techRouter);
 app.use('/api/post', postRouter);
 app.use('/api/user', userRouter);
+app.use('/api/aws', awsRouter);
+app.use('/api/oauth', oauthRouter);
+// controller
+const oAuthController = require(path.join(
+  __dirname,
+  '/src/controllers/oAuthController'
+));
+
+// app.get(
+//   '/api/getAccessToken',
+//   //gettoken
+//   oAuthController.getQueryString,
+//   //getgithub data
+//   oAuthController.getGithubData,
+//   async (req, res) => {
+//     console.log(res.locals.data);
+//     res.status(200).json(res.locals.data);
+//   }
+// );
+
+app.get('/getUserData', async (req, res) => {
+  await fetch('https://api.github.com/user', {
+    method: 'GET',
+    headers: {
+      Authorization: req.get('Authorization'),
+    },
+  })
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+      console.log('userdata is', data);
+      res.json(data);
+    });
+});
 
 // Default unknown page handler
 app.use('*', (req, res) => {

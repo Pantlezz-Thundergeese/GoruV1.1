@@ -1,158 +1,214 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import ReactDOM from 'react';
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 //add containers and requirements for JS
-import Navbar from '../components/Navbar.jsx'
+import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar.jsx';
+import '../styles/Login.scss';
+import { UserIdContext } from '../contexts/Contexts.jsx';
 
 const Login = (props) => {
   //create a state of invalid usernmae/passowrd initialixed to false
-  const [invalidLogin, setShowInvalidLogin] = useState(false);
-  
-  //when someone puts in their form info, handle a login request
-  const handleLogin = async (e) => {
-    console.log("Event Data: ", e);
-    //make a fetch request to the server to post a username and password login
-    const un = e.target.username;
-    const pw = e.target.password;
-    //check if new user is toggled
-    const newUser = e.target.new_user;
-    if (!newUser) { //-->login request (NOT a new user)
-      const url = path.resolve(__dirName, '/api/user/login')
-      //if good match, post back the home page with access to create an api
-      //else bad match, post back a toggle which shows div "username or password invalid"
-      await fetch ( 'dummy', {
-        method: "POST",
-        body: JSON.stringify({
-          username: un,
-          password: pw,
-        }),
-      }).then (res => {
-        //convert with json
-        res.json();
-      }).then (resObj => {
-        //expect object with key status: 'logged in' OR 'failed login'
-        if (resObj.status === 'logged in') {
-          //set loggedInStatus to their id number (give them a cookie stretch goal)
-          props.loggedIn(resObj.userId);
-          //navigate to home with their loggedIn cookie in place
-          window.location.href = path.resolve(__dirName, './Home.jsx');
-        } else if  (resObj.status === 'failed login') {
-          //change state of 'invalidLogin to true & reveal a div with 'invalid username or passowrd displayed
-          setShowInvalidLogin(true);
-        } else {
-          //error! neither logged in NOR failed to login!
-          throw new Error
-        };
-      }).catch (err => {
-        console.log('retrival of Login Attempt failed: ', err)
-      })
-    } else { //-->new USER selected
-      const url = path.resolve(__dirName, '/api/user/newuser');
-      await fetch ('dummy', { //-->/api/user/newuser
-        method: "POST",
-        body: JSON.stringify({
-          username: un,
-          password: pw,
-        }),
-      }).then (res => {
-        res.json();
-      }) .then (resObj => {
-        //expect object with key status: 'NEW logged in' OR 'failed login'
-        if (resObj.status === 'logged in') {
-          //set loggedInStatus to their id number (give them a cookie stretch goal)
-          props.loggedIn(resObj.userId);
-          //navigate to home with their loggedIn cookie in place
-          window.location.href = path.resolve(__dirName, './Home.jsx');
-        } else if  (resObj.status === 'failed signup') {
-          //change state of 'invalidLogin to true & reveal a div with 'invalid username or passowrd displayed
-          setShowInvalidLogin(true);
-        } else {
-          //error! neither logged in NOR failed to login!
-          throw new Error
-        };
-      }).catch (err => {
-        console.log('retrieval of SignUp failed: ', err)
-      })
-    }
-  }
-  
-  return (
-    <div className='wrapper'>
-      <Navbar />
-      <div className="body2">
-        <div className="form_contents">
-          <div className="login_form_container">
-            <form className='login_form'>
-              <label>Username</label>
-              <input type='text' className='login_username' placeholder='Username' value='username'></input>
-              <label>Password</label>
-              <input type='text' className='login_password' placeholder='Password' value='password'></input>
-              <label>New User?</label>
-              <input type="radio" value='new_user'></input>
-            </form>
-          </div>
-        </div>
-          <div className='response_button'>
-            {invalidLogin && (<div className='invalid_login'>Invalid Username Or Password</div>)}
-            <div className="submit_button_box">
-              <button className="form_submit_button" value="Submit" onClick= {(e) => {handleLogin(e)}}>Submit Login Credentials</button>
-            </div>
-          </div>
-        </div>
-    </div>
-  )
-}
+  const [user, setUser] = useState('');
+  const [validLogin, setvalidLogin] = useState(false);
+  const navigate = useNavigate();
+  const { setGlobalId } = useContext(UserIdContext);
 
-export default Login
+  const [info, setInfo] = useState({ username: '', password: '' });
+  const [userData, setUserData] = useState({});
+  const [loading, setLoading] = useState(true);
 
-/* 
-
-const [UN, setUN] = setState('')
-
-const handleLogin = async () => {
-    try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username: UN, password: PW }),      <-
+  //Check log in
+  useEffect(() => {
+    // check if the session is avaiable
+    console.log('checking for active session');
+    const checkSession = async () => {
+      const res = await fetch('/api/user/checkSession', {
+        method: 'GET',
       });
-      console.log(response);
-      const data = response.json();
-      if (response.ok) {
-        console.log('Frontend Login successful');
-        setIsLoggedIn(true);
-      } else {
-        console.log('Frontend Login unsuccesful');
-        setIncorrect('Incorrect combination. Try again.');
+      const data = await res.json();
+      console.log(data);
+      if (data.authenticate) {
+        setGlobalId(data.id);
+        setvalidLogin(true);
       }
-    } catch (err) {
-      console.error('Error in Frontend Login');
+    };
+    checkSession();
+    setLoading(false);
+  }, []);
+
+  //Gitapi
+  async function getUserData() {
+    await fetch(`http://localhost:3000/getUserData`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      },
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        console.log('userData is', data);
+        setUserData(data);
+      });
+  }
+
+  // Redirect Github Login DONE
+  function loginByGithub() {
+    // ideally we fetch this client_id from the backend for safety reasons
+    const CLIENT_ID = 'c238f56e0e5708918de2';
+
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}`;
+  }
+
+  // Handle Github Login / Get Access_token
+  useEffect(() => {
+    const queryString = window.location.search;
+    console.log('fronend queryString is', queryString);
+    const urlParams = new URLSearchParams(queryString);
+    console.log('urlParams is', urlParams);
+    const code = urlParams.get('code');
+    console.log('code is', code);
+
+    // code is from when user logs in from github probably
+    if (code && !localStorage.getItem('accessToken')) {
+      // async function for getting access token as a cookie
+      async function getProfile() {
+        const res = await fetch(
+          `http://localhost:3000/api/oauth?code=${code}`,
+          {
+            method: 'GET',
+            credentials: 'include',
+          }
+        );
+        const data = await res.json();
+        console.log('data from github');
+        // userData = await res.json();
+        // console.log('userData is ', userData);
+        setUser(data);
+      }
+
+      getProfile();
+
+      // valid login
+      setvalidLogin(!validLogin);
+    }
+  }, []);
+
+  // Handle Regular Login
+  const handleClick = async (e) => {
+    const res = await fetch('http://localhost:3000/api/user/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: info.username,
+        password: info.password,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+    const id = await res.json();
+    console.log('res is', id);
+    if (typeof id === 'number') {
+      setGlobalId(id);
+      setvalidLogin(true);
+    } else {
+      alert('invalid username/password');
     }
   };
 
+  return (
+    <div
+      style={{
+        backgroundColor: 'black',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <Navbar />
+      <div className="loginbackground">
+        {!localStorage.getItem('accessToken') && !validLogin ? (
+          <>
+            <div className="formHeader">
+              <h3>Welcome back!</h3>
+              <h3>Log in with your name and password</h3>
+            </div>
+            <div className="container">
+              <div className="login-form">
+                <h2>Login</h2>
+                <label for="username">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  className="logininput"
+                  name="username"
+                  required
+                  value={info.username}
+                  onChange={(e) => {
+                    setInfo({ ...info, username: e.target.value });
+                  }}
+                />
+                <label for="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  className="logininput"
+                  name="password"
+                  required
+                  value={info.password}
+                  onChange={(e) => {
+                    setInfo({ ...info, password: e.target.value });
+                  }}
+                />
+                <button id="allbuttons" type="submit" onClick={handleClick}>
+                  Login
+                </button>
+              </div>
+            </div>
 
+            <div class="container">
+              <a class="github-button" onClick={loginByGithub}>
+                <img
+                  src="https://github.githubassets.com/images/modules/logos_page/Octocat.png"
+                  alt="GitHub logo"
+                  class="github-logo"
+                />
+                <span>Login with GitHub</span>
+              </a>
+            </div>
+          </>
+        ) : (
+          <>
+            <h2>
+              Successfully Logged In:{' '}
+              <span style={{ color: 'orange' }}>{user.name}</span>
+            </h2>
+            <h3></h3>
+            <button onClick={getUserData}>Get User Data</button>
+            {Object.keys(userData).length !== 0 ? (
+              <>
+                <div className="text">
+                  <h4>Hey there {userData.login}</h4>
+                </div>
 
-  HTML:
-  <Button onClick={() => handleLogin())}>
+                <img className="user-image" src={userData.avatar_url} />
+              </>
+            ) : (
+              <>
+                <h4>No data available</h4>
+              </>
+            )}
+          </>
+        )}
+      </div>
+      <footer>
+        <p>&copy; 2023 Goru. All rights reserved.</p>
+      </footer>
+    </div>
+  );
+};
 
-  <input 
-  type='text' 
-  className='login_username' 
-  placeholder='Username' 
-  onChange={(e) => setPW(e.target.value)
-  ></input>
-
-
-
-  function mergedFunction() {
-    const username = dummy.innerhtml
-    setUN(username)
-    handleLogin()
-  }
-
-
-  <Button classname='dummy' onClick={mergedFunction}>
-
-*/
+export default Login;

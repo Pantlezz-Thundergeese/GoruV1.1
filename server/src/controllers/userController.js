@@ -2,6 +2,10 @@ const db = require('../config/profileSchema.js');
 
 const userController = {};
 
+userController.makeOauthUser = async (req, res, next) => {
+  //
+};
+
 userController.makeUser = async (req, res, next) => {
   const { username, password, contact } = req.body;
   //Check and see if username is taken
@@ -50,33 +54,25 @@ userController.makeUser = async (req, res, next) => {
   }
 };
 
-userController.newSession = (req, res, next) => {
-  // Here after creating or authenticating. Make a new 1.5 minute session and send them cookies.
-  res.cookie('SSID', res.locals.userId, { maxAge: 90000, httpOnly: true });
-  next();
-};
-
-userController.endSession = (req, res, next) => {
-  res.clearCookie('SSID');
-  next();
-};
-
 userController.authenticate = async (req, res, next) => {
   // Here for verifying authentication of new users
   // If they have a valid session already, next()
-  if (req.cookies('SSID')) next;
+  // if (req.cookies.SSID) return next();
 
   // If they don't have a valid session, check req.body for username + password
   const { username, password } = req.body;
+  console.log(req.body);
   // Hash salt + Pwd and check database. If valid, next.
   try {
     // Add USER_ID on res.locals.userId
-    const userIdResult = await db.query(
-      `SELECT user_id FROM users WHERE name = $1, password = $2`,
+    const { rows } = await db.query(
+      `SELECT user_id FROM users WHERE name = $1 AND password = $2`,
       [username, password]
     );
+    console.log(rows[0].user_id);
+    const id = rows[0].user_id;
 
-    if (userIdResult.length == 0) {
+    if (!id) {
       return next({
         log: 'usercontroller.authenticate: Invalid username or password',
         status: 401,
@@ -84,7 +80,7 @@ userController.authenticate = async (req, res, next) => {
       });
     }
 
-    res.locals.userId = userId[0];
+    res.locals.userId = id;
 
     console.log('UserId saved');
 
@@ -94,6 +90,20 @@ userController.authenticate = async (req, res, next) => {
       log: 'Error occured in userController.authenticate.',
     });
   }
+};
+
+userController.newSession = (req, res, next) => {
+  // Here after creating or authenticating. Make a new 1.5 minute session and send them cookies.
+  console.log(res.locals.userId);
+  res.cookie('SSID', res.locals.userId, { maxAge: 90000, httpOnly: true }); //,
+  console.log('I just made a cookie in userController.newSession');
+  next();
+};
+
+userController.endSession = (req, res, next) => {
+  res.clearCookie('SSID');
+  console.log('Cookie cleared');
+  next();
 };
 
 userController.authorizeEdit = (req, res, next) => {
@@ -112,8 +122,9 @@ userController.authorizeEdit = (req, res, next) => {
   }
 };
 
+//find user by name
 userController.findUser = async (req, res, next) => {
-  const userName = req.params.id;
+  const userName = req.params.userName;
   const lookupText = 'SELECT * FROM users WHERE name = $1';
   const lookupVals = [userName];
   try {
@@ -130,6 +141,85 @@ userController.findUser = async (req, res, next) => {
   } catch (err) {
     return next({
       log: 'Encountered lookup error in postController.findPostsByUser',
+      message: { err: 'Lookup error.' },
+    });
+  }
+};
+
+userController.findUserById = async (req, res, next) => {
+  const id = req.params.id;
+  const lookupText = 'SELECT * FROM users WHERE user_id = $1';
+  const lookupVals = [id];
+  try {
+    const { rows } = await db.query(lookupText, lookupVals);
+    console.log('Retrieved user lookup: ', rows);
+    if (rows.length === 0) {
+      return next({
+        log: 'Failed to find matching user in userController.findUser',
+        message: { err: 'Lookup error.' },
+      });
+    }
+    res.locals.userRequest = rows[0];
+    next();
+  } catch (err) {
+    return next({
+      log: 'Encountered lookup error in postController.findPostsByUser',
+      message: { err: 'Lookup error.' },
+    });
+  }
+};
+
+userController.findAllUsers = async (req, res, next) => {
+  const lookupText = 'SELECT * FROM users';
+  try {
+    const { rows } = await db.query(lookupText);
+    console.log('Retrieved user lookup: ', rows);
+    if (rows.length === 0) {
+      return next({
+        log: 'Failed to find matching user in userController.findUser',
+        message: { err: 'Lookup error.' },
+      });
+    }
+    res.locals.userRequest = rows;
+    next();
+  } catch (err) {
+    return next({
+      log: 'Encountered lookup error in postController.findPostsByUser',
+      message: { err: 'Lookup error.' },
+    });
+  }
+};
+
+// CREATE TABLE users (
+//   user_id SERIAL PRIMARY KEY,
+//   name TEXT NOT NULL,
+//   password TEXT NOT NULL,
+//   contact TEXT NOT NULL,
+//   permissions INTEGER DEFAULT 0
+// )
+
+userController.updateUser = async (req, res, next) => {
+  const userId = req.params.id;
+  const { name, password, contact } = req.body;
+  const lookupText = `UPDATE users 
+  SET name = $2, password = $3, contact = $4 
+  WHERE user_id = $1
+  RETURNING *`;
+  const lookupVals = [userId, name, password, contact];
+  try {
+    const response = await db.query(lookupText, lookupVals);
+    console.log('Retrieved updated user: ', response.rows[0]);
+    if (!response) {
+      return next({
+        log: 'Failed to update user in userController.updateUser',
+        message: { err: 'Lookup error.' },
+      });
+    }
+    res.locals.newUserInfo = response.rows[0];
+    next();
+  } catch (err) {
+    return next({
+      log: 'Encountered update error in userController.updateUser',
       message: { err: 'Lookup error.' },
     });
   }
