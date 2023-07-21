@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export function HomeBody({reloadBody,setReloadBody}) {
+export function HomeBody({ reloadBody, setReloadBody }) {
   const navigate = useNavigate();
   const [apiData, setApiData] = useState([]);
   //render data
@@ -20,7 +20,7 @@ export function HomeBody({reloadBody,setReloadBody}) {
       } catch (err) {}
     };
     fetchData();
-    setReloadBody(false)
+    setReloadBody(false);
   }, [reloadBody]);
   //Render boxes
   const renderBox = () => {

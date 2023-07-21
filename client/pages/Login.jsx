@@ -9,6 +9,7 @@ import { UserIdContext } from '../contexts/Contexts.jsx';
 
 const Login = (props) => {
   //create a state of invalid usernmae/passowrd initialixed to false
+  const [user, setUser] = useState('');
   const [validLogin, setvalidLogin] = useState(false);
   const navigate = useNavigate();
   const { setGlobalId } = useContext(UserIdContext);
@@ -82,9 +83,10 @@ const Login = (props) => {
           }
         );
         const data = await res.json();
-        console.log('data from github', data);
+        console.log('data from github');
         // userData = await res.json();
         // console.log('userData is ', userData);
+        setUser(data);
       }
 
       getProfile();
@@ -180,7 +182,11 @@ const Login = (props) => {
           </>
         ) : (
           <>
-            <h2>Successfully Logged In</h2>
+            <h2>
+              Successfully Logged In:{' '}
+              <span style={{ color: 'orange' }}>{user.name}</span>
+            </h2>
+            <h3></h3>
             <button onClick={getUserData}>Get User Data</button>
             {Object.keys(userData).length !== 0 ? (
               <>
